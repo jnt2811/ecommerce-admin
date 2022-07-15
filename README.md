@@ -1,1 +1,1 @@
-# ecommerce-admin
+# react-init
