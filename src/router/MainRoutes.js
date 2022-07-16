@@ -1,5 +1,5 @@
 import { Redirect, Route, Switch } from "react-router-dom";
-import { Categories, Dashboard, NoMatch, Sellers, Settings, Vouchers } from "../pages";
+import { Categories, Dashboard, NoMatch, Sellers, Settings, Users, Vouchers } from "../pages";
 import { paths } from "../constants";
 import { Sider, Header } from "../layouts";
 import { Layout } from "antd";
@@ -18,6 +18,7 @@ export const MainRoutes = () => {
             <Route exact path={paths.ALL_CATEGORIES} component={Categories} />
             <Route exact path={paths.ALL_VOUCHERS} component={Vouchers} />
             <Route exact path={paths.ALL_SELLERS} component={Sellers} />
+            <Route exact path={paths.ALL_USERS} component={Users} />
             <Route exact path={paths.SETTINGS} component={Settings} />
             <Redirect exact from={paths.MAIN} to={paths.DASHBOARD} />
             <Route component={NoMatch} />

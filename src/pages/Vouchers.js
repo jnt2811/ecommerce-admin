@@ -21,14 +21,21 @@ import { useState } from "react";
 export const Vouchers = () => {
   const [formAddNew] = Form.useForm();
   const [formEdit] = Form.useForm();
+  const [searchValue, setSearchValue] = useState();
   const [voucherEdit, setVoucherEdit] = useState();
-  const { loading: list_loading, error: list_error, data: list_data } = useQuery(GET_VOUCHERS);
+  const {
+    loading: list_loading,
+    error: list_error,
+    data: list_data,
+  } = useQuery(GET_VOUCHERS, { variables: { searchString: searchValue } });
   const [addVoucher, { data: add_data, loading: add_loading, error: add_error }] = useMutation(
     ADD_VOUCHER,
-    { refetchQueries: [{ query: GET_VOUCHERS }] }
+    { refetchQueries: [{ query: GET_VOUCHERS }, { variables: { searchString: searchValue } }] }
   );
   const [updateVoucher, { data: update_data, loading: update_loading, error: update_error }] =
-    useMutation(UPDATE_VOUCHER, { refetchQueries: [{ query: GET_VOUCHERS }] });
+    useMutation(UPDATE_VOUCHER, {
+      refetchQueries: [{ query: GET_VOUCHERS }, { variables: { searchString: searchValue } }],
+    });
 
   const onFinish = (values) => {
     values.VALID_UNTIL = moment(values.VALID_UNTIL).valueOf();
@@ -121,7 +128,7 @@ export const Vouchers = () => {
 
   return (
     <div>
-      <Topbar title="Vouchers" />
+      <Topbar title="Vouchers" onSearch={setSearchValue} />
 
       <Row gutter={15}>
         <Col flex="350px">

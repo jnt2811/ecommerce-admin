@@ -4,13 +4,19 @@ import { Button, Col, Form, Input, Popconfirm, Row, Table } from "antd";
 import { Topbar } from "../components";
 import moment from "moment";
 import { ADD_CATEGORY, GET_CATEGORIES, UPDATE_CATEGORY } from "../queries";
+import { useState } from "react";
 
 export const Categories = () => {
   const [form] = Form.useForm();
-  const { loading: list_loading, error: list_error, data: list_data } = useQuery(GET_CATEGORIES);
+  const [searchValue, setSearchValue] = useState();
+  const {
+    loading: list_loading,
+    error: list_error,
+    data: list_data,
+  } = useQuery(GET_CATEGORIES, { variables: { searchString: searchValue } });
   const [addCategory, { data: add_data, loading: add_loading, error: add_error }] = useMutation(
     ADD_CATEGORY,
-    { refetchQueries: [{ query: GET_CATEGORIES }] }
+    { refetchQueries: [{ query: GET_CATEGORIES }, { variables: { searchString: searchValue } }] }
   );
 
   const onFinish = (values) => {
@@ -54,7 +60,7 @@ export const Categories = () => {
 
   return (
     <div>
-      <Topbar title="Categories" />
+      <Topbar title="Categories" onSearch={setSearchValue} />
 
       <Row gutter={15}>
         <Col flex="350px">

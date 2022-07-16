@@ -1,8 +1,9 @@
 import { useQuery } from "@apollo/client";
-import { Space, Table } from "antd";
-import React, { useState } from "react";
+import { Table } from "antd";
+import { useState } from "react";
 import { GET_SELLERS } from "../queries";
 import { Topbar } from "../components";
+import moment from "moment";
 
 export const Sellers = () => {
   const [searchValue, setSearchValue] = useState();
@@ -11,7 +12,7 @@ export const Sellers = () => {
     error: list_error,
     data: list_data,
   } = useQuery(GET_SELLERS, {
-    variables: { search_string: searchValue },
+    variables: { searchString: searchValue },
   });
 
   console.log("list sellers", list_data, list_loading, list_error);
@@ -24,19 +25,17 @@ export const Sellers = () => {
     {
       title: "Rating",
       dataIndex: "RATING",
+      render: (data) => (!data ? "unknown" : data),
     },
     {
       title: "Followers",
       dataIndex: "FOLLOWER",
+      render: (data) => (!data ? 0 : data),
     },
     {
       title: "Created at",
       dataIndex: "CREATE_AT",
-    },
-    {
-      title: "Actions",
-      dataIndex: "",
-      render: (_, record) => <Space></Space>,
+      render: (data) => moment(data).format("DD/MM/YYYY"),
     },
   ];
 
@@ -49,6 +48,7 @@ export const Sellers = () => {
         dataSource={list_data?.getSeller}
         loading={list_loading}
         pagination={{ pageSize: 5 }}
+        rowKey="ID"
       />
     </div>
   );

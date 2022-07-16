@@ -5,3 +5,4 @@ export * from "./Vouchers";
 export * from "./Sellers";
 export * from "./Settings";
 export * from "./NoMatch";
+export * from "./Users";

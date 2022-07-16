@@ -8,4 +8,5 @@ export const paths = {
   ALL_VOUCHERS: "/vouchers",
   ALL_SELLERS: "/sellers",
   SETTINGS: "/settings",
+  ALL_USERS: "/users",
 };
