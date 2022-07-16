@@ -1,4 +1,4 @@
-import { DashboardOutlined, NumberOutlined, TagOutlined } from "@ant-design/icons";
+import { DashboardOutlined, NumberOutlined, ShopOutlined, TagOutlined } from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 import { useHistory } from "react-router-dom";
 import { paths } from "../constants";
@@ -30,6 +30,11 @@ const items = [
     key: paths.ALL_VOUCHERS,
     label: "Vouchers",
     icon: <TagOutlined />,
+  },
+  {
+    key: paths.ALL_SELLERS,
+    label: "Sellers",
+    icon: <ShopOutlined />,
   },
 ];
 

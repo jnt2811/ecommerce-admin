@@ -31,8 +31,8 @@ const UserPopup = ({ children }) => {
       overlay={
         <div style={styles.popupWrapper}>
           <Space style={styles.popupWrapper.userInfo}>
-            <Avatar size="large">Seller</Avatar>
-            <div>Seller</div>
+            <Avatar size="large">Admin</Avatar>
+            <div>Admin</div>
           </Space>
           <Menu items={items} mode="vertical" style={styles.popupWrapper.menu} onClick={onClick} />
         </div>

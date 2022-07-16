@@ -1,6 +1,18 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/client";
-import { Button, Col, DatePicker, Form, Input, InputNumber, Modal, Popconfirm, Row, Space, Table } from "antd";
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Popconfirm,
+  Row,
+  Space,
+  Table,
+} from "antd";
 import { Topbar } from "../components";
 import moment from "moment";
 import { ADD_VOUCHER, GET_VOUCHERS, UPDATE_VOUCHER } from "../queries";
@@ -11,8 +23,12 @@ export const Vouchers = () => {
   const [formEdit] = Form.useForm();
   const [voucherEdit, setVoucherEdit] = useState();
   const { loading: list_loading, error: list_error, data: list_data } = useQuery(GET_VOUCHERS);
-  const [addVoucher, { data: add_data, loading: add_loading, error: add_error }] = useMutation(ADD_VOUCHER, { refetchQueries: [{ query: GET_VOUCHERS }] });
-  const [updateVoucher, { data: update_data, loading: update_loading, error: update_error }] = useMutation(UPDATE_VOUCHER, { refetchQueries: [{ query: GET_VOUCHERS }] });
+  const [addVoucher, { data: add_data, loading: add_loading, error: add_error }] = useMutation(
+    ADD_VOUCHER,
+    { refetchQueries: [{ query: GET_VOUCHERS }] }
+  );
+  const [updateVoucher, { data: update_data, loading: update_loading, error: update_error }] =
+    useMutation(UPDATE_VOUCHER, { refetchQueries: [{ query: GET_VOUCHERS }] });
 
   const onFinish = (values) => {
     values.VALID_UNTIL = moment(values.VALID_UNTIL).valueOf();
@@ -70,7 +86,9 @@ export const Vouchers = () => {
             type="primary"
             onClick={() => {
               setVoucherEdit(record);
-              formEdit.setFields(Object.keys(record).map((name) => ({ name, value: record[name] })));
+              formEdit.setFields(
+                Object.keys(record).map((name) => ({ name, value: record[name] }))
+              );
             }}
           ></Button>
           <DeleteButton record={record} />
@@ -103,7 +121,7 @@ export const Vouchers = () => {
 
   return (
     <div>
-      <Topbar title="Vouchers" showAddNew={false} />
+      <Topbar title="Vouchers" />
 
       <Row gutter={15}>
         <Col flex="350px">
@@ -115,7 +133,13 @@ export const Vouchers = () => {
         </Col>
 
         <Col flex="auto">
-          <Table rowKey="ID" columns={columns} dataSource={list_data?.getVouchers} loading={list_loading} pagination={{ pageSize: 5 }} />
+          <Table
+            rowKey="ID"
+            columns={columns}
+            dataSource={list_data?.getVouchers}
+            loading={list_loading}
+            pagination={{ pageSize: 5 }}
+          />
         </Col>
       </Row>
 
@@ -136,7 +160,8 @@ export const Vouchers = () => {
 };
 
 const DeleteButton = ({ record }) => {
-  const [updateVoucher, { data: update_data, loading: update_loading, error: update_error }] = useMutation(UPDATE_VOUCHER, { refetchQueries: [{ query: GET_VOUCHERS }] });
+  const [updateVoucher, { data: update_data, loading: update_loading, error: update_error }] =
+    useMutation(UPDATE_VOUCHER, { refetchQueries: [{ query: GET_VOUCHERS }] });
 
   console.log("delete voucher", update_data, update_loading, update_error);
 

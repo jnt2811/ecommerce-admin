@@ -4,8 +4,8 @@ export const paths = {
   SIGNUP: "/signup",
   DASHBOARD: "/dashboard",
   ALL_PRODUCTS: "/products",
-  NEW_PRODUCT: "/new-product",
   ALL_CATEGORIES: "/categories",
   ALL_VOUCHERS: "/vouchers",
+  ALL_SELLERS: "/sellers",
   SETTINGS: "/settings",
 };

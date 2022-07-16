@@ -1,8 +1,16 @@
-import { Button, PageHeader } from "antd";
+import { Button, Input, PageHeader, Space } from "antd";
 
-export const Topbar = ({ title = "Title", showAddNew = true, onAddNew = () => {} }) => {
+export const Topbar = ({
+  title = "Title",
+  showAddNew = false,
+  onAddNew = () => {},
+  showSearch = true,
+  onSearch = () => {},
+  loadingSearch = false,
+}) => {
   return (
     <PageHeader
+      style={styles}
       title={title}
       subTitle={
         showAddNew && (
@@ -11,7 +19,13 @@ export const Topbar = ({ title = "Title", showAddNew = true, onAddNew = () => {}
           </Button>
         )
       }
-      style={styles}
+      extra={
+        <Space>
+          {showSearch && (
+            <Input.Search placeholder="Search..." onSearch={onSearch} loading={loadingSearch} />
+          )}
+        </Space>
+      }
     />
   );
 };

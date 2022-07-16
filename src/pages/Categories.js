@@ -8,7 +8,10 @@ import { ADD_CATEGORY, GET_CATEGORIES, UPDATE_CATEGORY } from "../queries";
 export const Categories = () => {
   const [form] = Form.useForm();
   const { loading: list_loading, error: list_error, data: list_data } = useQuery(GET_CATEGORIES);
-  const [addCategory, { data: add_data, loading: add_loading, error: add_error }] = useMutation(ADD_CATEGORY, { refetchQueries: [{ query: GET_CATEGORIES }] });
+  const [addCategory, { data: add_data, loading: add_loading, error: add_error }] = useMutation(
+    ADD_CATEGORY,
+    { refetchQueries: [{ query: GET_CATEGORIES }] }
+  );
 
   const onFinish = (values) => {
     console.log(values);
@@ -51,7 +54,7 @@ export const Categories = () => {
 
   return (
     <div>
-      <Topbar title="Categories" showAddNew={false} />
+      <Topbar title="Categories" />
 
       <Row gutter={15}>
         <Col flex="350px">
@@ -75,7 +78,13 @@ export const Categories = () => {
         </Col>
 
         <Col flex="auto">
-          <Table rowKey="ID" columns={columns} dataSource={list_data?.getCategories} loading={list_loading} pagination={{ pageSize: 5 }} />
+          <Table
+            rowKey="ID"
+            columns={columns}
+            dataSource={list_data?.getCategories}
+            loading={list_loading}
+            pagination={{ pageSize: 5 }}
+          />
         </Col>
       </Row>
     </div>
@@ -83,7 +92,8 @@ export const Categories = () => {
 };
 
 const DeleteButton = ({ record }) => {
-  const [updateCategory, { data: update_data, loading: update_loading, error: update_error }] = useMutation(UPDATE_CATEGORY, { refetchQueries: [{ query: GET_CATEGORIES }] });
+  const [updateCategory, { data: update_data, loading: update_loading, error: update_error }] =
+    useMutation(UPDATE_CATEGORY, { refetchQueries: [{ query: GET_CATEGORIES }] });
 
   console.log("update category", update_data, update_loading, update_error);
 
