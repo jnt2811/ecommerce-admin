@@ -8,6 +8,7 @@ import {
   Input,
   InputNumber,
   Modal,
+  notification,
   Popconfirm,
   Row,
   Space,
@@ -16,9 +17,11 @@ import {
 import { Topbar } from "../components";
 import moment from "moment";
 import { ADD_VOUCHER, GET_VOUCHERS, UPDATE_VOUCHER } from "../queries";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { currencyParser, formatNumberToPrice, toCode } from "../helpers";
 
 export const Vouchers = () => {
+  const nameRef = useRef();
   const [formAddNew] = Form.useForm();
   const [formEdit] = Form.useForm();
   const [searchValue, setSearchValue] = useState();
@@ -27,15 +30,65 @@ export const Vouchers = () => {
     loading: list_loading,
     error: list_error,
     data: list_data,
-  } = useQuery(GET_VOUCHERS, { variables: { searchString: searchValue } });
-  const [addVoucher, { data: add_data, loading: add_loading, error: add_error }] = useMutation(
-    ADD_VOUCHER,
-    { refetchQueries: [{ query: GET_VOUCHERS }, { variables: { searchString: searchValue } }] }
-  );
-  const [updateVoucher, { data: update_data, loading: update_loading, error: update_error }] =
-    useMutation(UPDATE_VOUCHER, {
-      refetchQueries: [{ query: GET_VOUCHERS }, { variables: { searchString: searchValue } }],
+  } = useQuery(GET_VOUCHERS, {
+    variables: { searchString: searchValue, applyAll: true },
+  });
+  const [addVoucher, { data: add_data, loading: add_loading, error: add_error, reset: add_reset }] =
+    useMutation(ADD_VOUCHER, {
+      refetchQueries: [
+        { query: GET_VOUCHERS, variables: { searchString: searchValue, applyAll: true } },
+      ],
     });
+  const [
+    updateVoucher,
+    { data: update_data, loading: update_loading, error: update_error, reset: update_reset },
+  ] = useMutation(UPDATE_VOUCHER, {
+    refetchQueries: [
+      { query: GET_VOUCHERS, variables: { searchString: searchValue, applyAll: true } },
+    ],
+  });
+
+  useEffect(() => {
+    if (add_data) {
+      if (add_data?.addNewVouchers?.status === "KO") {
+        notification.error({
+          placement: "bottomLeft",
+          message: add_data?.addNewVouchers?.message,
+        });
+        add_reset();
+      } else if (add_data?.addNewVouchers?.status === "OK") {
+        notification.success({
+          placement: "bottomLeft",
+          message: "Add new voucher successfully!",
+        });
+        add_reset();
+        formAddNew.resetFields();
+        setTimeout(() => {
+          nameRef.current?.focus();
+        }, 500);
+      }
+    }
+  }, [add_data, add_reset, formAddNew]);
+
+  useEffect(() => {
+    if (update_data) {
+      if (update_data?.updateVoucher?.status === "KO") {
+        notification.error({
+          placement: "bottomLeft",
+          message: update_data?.updateVoucher?.message,
+        });
+        update_reset();
+      } else if (update_data?.updateVoucher?.status === "OK") {
+        notification.success({
+          placement: "bottomLeft",
+          message: "Update voucher successfully!",
+        });
+        update_reset();
+        formEdit.resetFields();
+        setVoucherEdit();
+      }
+    }
+  }, [formEdit, update_data, update_reset]);
 
   const onFinish = (values) => {
     values.VALID_UNTIL = moment(values.VALID_UNTIL).valueOf();
@@ -44,17 +97,19 @@ export const Vouchers = () => {
     const isAddNew = !voucherEdit;
 
     if (isAddNew) {
+      values.APPLY_ALL = true;
       console.log(values);
       addVoucher({ variables: { vouchers: [values] } });
-      formAddNew.resetFields();
     } else {
       values.ID = voucherEdit.ID;
       delete values.VALID_UNTIL;
       console.log(values);
       updateVoucher({ variables: { voucher: values } });
-      formEdit.resetFields();
-      setVoucherEdit();
     }
+  };
+
+  const onChangeName = ({ target }, form) => {
+    form.setFields([{ name: "VOUCHER_CODE", value: toCode(target.value) }]);
   };
 
   console.log("list vouchers", list_data, list_loading, list_error);
@@ -73,6 +128,7 @@ export const Vouchers = () => {
     {
       title: "Discount price",
       dataIndex: "DISCOUNT_PRICE",
+      render: formatNumberToPrice,
     },
     {
       title: "Valid until",
@@ -82,10 +138,19 @@ export const Vouchers = () => {
     {
       title: "Created at",
       dataIndex: "CREATE_AT",
-      render: (data) => moment(data).format("DD/MM/YYYY"),
+      width: "200px",
+      render: (data) => moment(data).format("DD/MM/YYYY HH:mm"),
+    },
+    {
+      title: "Updated at",
+      dataIndex: "UPDATE_AT",
+      width: "200px",
+      render: (data) => moment(data).format("DD/MM/YYYY HH:mm"),
     },
     {
       title: "Actions",
+      width: "100px",
+      fixed: "right",
       render: (_, record) => (
         <Space>
           <Button
@@ -98,7 +163,7 @@ export const Vouchers = () => {
               );
             }}
           ></Button>
-          <DeleteButton record={record} />
+          <DeleteButton record={record} searchValue={searchValue} />
         </Space>
       ),
     },
@@ -107,7 +172,7 @@ export const Vouchers = () => {
   const renderForm = (form, isAddNew = true) => (
     <Form form={form} layout="vertical" onFinish={onFinish}>
       <Form.Item label="Name" name="VOUCHER_NAME" rules={[{ required: true }]}>
-        <Input />
+        <Input ref={nameRef} onChange={(e) => onChangeName(e, form)} />
       </Form.Item>
 
       <Form.Item label="Code" name="VOUCHER_CODE" rules={[{ required: true }]}>
@@ -115,7 +180,13 @@ export const Vouchers = () => {
       </Form.Item>
 
       <Form.Item label="Discount price" name="DISCOUNT_PRICE" rules={[{ required: true }]}>
-        <InputNumber min={0} addonAfter="VND" style={{ width: "100%" }} />
+        <InputNumber
+          min={0}
+          addonAfter="VND"
+          style={{ width: "100%" }}
+          formatter={formatNumberToPrice}
+          parser={currencyParser}
+        />
       </Form.Item>
 
       {isAddNew && (
@@ -130,7 +201,7 @@ export const Vouchers = () => {
     <div>
       <Topbar title="Vouchers" onSearch={setSearchValue} />
 
-      <Row gutter={15}>
+      <Row gutter={15} wrap={false}>
         <Col flex="350px">
           {renderForm(formAddNew)}
 
@@ -146,6 +217,7 @@ export const Vouchers = () => {
             dataSource={list_data?.getVouchers}
             loading={list_loading}
             pagination={{ pageSize: 5 }}
+            scroll={{ x: 1200 }}
           />
         </Col>
       </Row>
@@ -166,9 +238,13 @@ export const Vouchers = () => {
   );
 };
 
-const DeleteButton = ({ record }) => {
+const DeleteButton = ({ record, searchValue }) => {
   const [updateVoucher, { data: update_data, loading: update_loading, error: update_error }] =
-    useMutation(UPDATE_VOUCHER, { refetchQueries: [{ query: GET_VOUCHERS }] });
+    useMutation(UPDATE_VOUCHER, {
+      refetchQueries: [
+        { query: GET_VOUCHERS, variables: { searchString: searchValue, applyAll: true } },
+      ],
+    });
 
   console.log("delete voucher", update_data, update_loading, update_error);
 
